@@ -2,111 +2,292 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>Dwikul Jyoti Das | Wireless PHY</title>
   <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #f5f5f7;
+      --text: #1d1d1f;
+      --muted: #6e6e73;
+      --line: rgba(0, 0, 0, 0.1);
+      --accent: #0071e3;
+      --accent-hover: #0077ed;
+      --nav-bg: rgba(255, 255, 255, 0.72);
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+              "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #000000;
+        --surface: #1d1d1f;
+        --text: #f5f5f7;
+        --muted: #a1a1a6;
+        --line: rgba(255, 255, 255, 0.14);
+        --accent: #2997ff;
+        --accent-hover: #4aa9ff;
+        --nav-bg: rgba(0, 0, 0, 0.72);
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; -webkit-text-size-adjust: 100%; }
     body {
-      font-family: Arial, sans-serif;
-      max-width: 850px;
-      margin: auto;
-      padding: 40px 24px;
-      line-height: 1.7;
-      color: #203040;
-      background: #f5f8fb;
+      margin: 0;
+      font-family: var(--font);
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.011em;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
     }
-    h1, h2 { color: #103b56; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+
+    /* Frosted navigation */
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      padding-top: env(safe-area-inset-top, 0px);
+      background: var(--nav-bg);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      max-width: 980px; margin: 0 auto; height: 48px; padding: 0 22px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .nav strong { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
+    .nav ul { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
+    .nav ul a { font-size: 13px; color: var(--muted); }
+    .nav ul a:hover { color: var(--text); text-decoration: none; }
+    @media (max-width: 640px) { .nav ul { display: none; } }
+
+    .wrap { max-width: 980px; margin: 0 auto; padding: 0 22px; }
+
+    /* Hero: the one memorable element */
+    header.hero { text-align: center; padding: 112px 0 96px; }
+    header.hero h1 {
+      margin: 0;
+      font-size: clamp(44px, 9vw, 88px);
+      line-height: 1.04;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+    }
+    header.hero p {
+      margin: 20px auto 0;
+      max-width: 640px;
+      font-size: clamp(19px, 2.6vw, 28px);
+      line-height: 1.25;
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      color: var(--muted);
+    }
+
+    /* Sections */
+    main { display: grid; gap: 20px; padding-bottom: 96px; }
     section {
-      background: white;
-      padding: 24px;
-      margin: 24px 0;
-      border-radius: 12px;
-      border: 1px solid #dce5ec;
+      background: var(--surface);
+      border-radius: 28px;
+      padding: clamp(28px, 5vw, 56px);
     }
-    a { color: #006c80; }
+    h2 {
+      margin: 0 0 16px;
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.1;
+      font-weight: 700;
+      letter-spacing: -0.028em;
+    }
+    section p { margin: 0 0 14px; max-width: 62ch; color: var(--muted); font-size: 19px; line-height: 1.5; }
+    section p:last-child { margin-bottom: 0; }
+
+    /* Lists */
+    ul.links, ul.plain { list-style: none; margin: 24px 0 0; padding: 0; }
+    ul.links li, ul.plain li {
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+      font-size: 19px;
+    }
+    ul.links li:last-child, ul.plain li:last-child { border-bottom: 1px solid var(--line); }
+    ul.links li { color: var(--muted); }
+    ul.links a { font-weight: 500; }
+    ul.plain li { color: var(--text); }
+
+    /* Publications */
+    ul.pubs { list-style: none; margin: 24px 0 0; padding: 0; }
+    ul.pubs li {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 20px 0;
+      border-top: 1px solid var(--line);
+      font-size: 17px; line-height: 1.4;
+    }
+    ul.pubs li:last-child { border-bottom: 1px solid var(--line); }
+    .pub-title { font-size: 19px; font-weight: 600; letter-spacing: -0.015em; color: var(--text); }
+    .pub-authors, .pub-venue { color: var(--muted); }
+    .pub-authors strong { color: var(--text); font-weight: 700; }
+    ul.pubs a { font-size: 15px; word-break: break-all; }
+
+    /* Pill link */
+    .pill {
+      display: inline-block; margin-top: 8px;
+      padding: 12px 24px; border-radius: 980px;
+      background: var(--accent); color: #fff;
+      font-size: 17px; font-weight: 500;
+      transition: background-color .2s ease;
+    }
+    .pill:hover { background: var(--accent-hover); text-decoration: none; }
+
+    /* One page-load moment, respects reduced motion */
+    @media (prefers-reduced-motion: no-preference) {
+      header.hero h1, header.hero p { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; }
+      header.hero p { animation-delay: .12s; }
+      @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+    @media (max-width: 640px) {
+      header.hero { padding: 72px 0 56px; }
+      section { border-radius: 22px; }
+      body, section p, ul.links li, ul.plain li { font-size: 17px; }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Dwikul Jyoti Das</h1>
-    <p>Wireless Communications · Signal Processing · PHY Algorithms</p>
-  </header>
+  <nav class="nav" aria-label="Primary">
+    <div class="nav-inner">
+      <strong>Dwikul Jyoti Das</strong>
+      <ul>
+        <li><a href="#contact">Profiles &amp; Contact</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#publications">Publications</a></li>
+        <li><a href="#learning">Learning Resources</a></li>
+        <li><a href="#projects">Planned Projects</a></li>
+      </ul>
+    </div>
+  </nav>
 
-  <section>
-  <h2>Profiles &amp; Contact</h2>
+  <div class="wrap">
+    <header class="hero">
+      <h1>Dwikul Jyoti Das</h1>
+      <p>Wireless Communications · Signal Processing · PHY Algorithms</p>
+    </header>
 
-  <p>
-    Explore my research publications and professional profiles,
-    or contact me about wireless research and engineering opportunities.
-  </p>
+    <main>
+      <section id="contact">
+        <h2>Profiles &amp; Contact</h2>
 
-  <ul>
-    <li>
-      <a href="https://scholar.google.com/citations?user=7xX5UcQAAAAJ&amp;hl=en"
-         target="_blank" rel="noopener noreferrer">
-        Google Scholar — Research Publications
-      </a>
-    </li>
+        <p>
+          Explore my research publications and professional profiles,
+          or contact me about wireless research and engineering opportunities.
+        </p>
 
-    <li>
-      <a href="https://www.linkedin.com/in/dwikul/"
-         target="_blank" rel="noopener noreferrer">
-        LinkedIn — Professional Profile
-      </a>
-    </li>
+        <ul class="links">
+          <li>
+            <a href="https://scholar.google.com/citations?user=7xX5UcQAAAAJ&amp;hl=en"
+               target="_blank" rel="noopener noreferrer">
+              Google Scholar — Research Publications
+            </a>
+          </li>
 
-    <li>
-      <a href="https://github.com/dwikul"
-         target="_blank" rel="noopener noreferrer">
-        GitHub — Code &amp; Projects
-      </a>
-    </li>
+          <li>
+            <a href="https://www.linkedin.com/in/dwikul/"
+               target="_blank" rel="noopener noreferrer">
+              LinkedIn — Professional Profile
+            </a>
+          </li>
 
-    <li>
-      Professional email:
-      <a href="mailto:dwikul_d@ece.iitr.ac.in">
-        dwikul_d@ece.iitr.ac.in
-      </a>
-    </li>
+          <li>
+            <a href="https://github.com/dwikul"
+               target="_blank" rel="noopener noreferrer">
+              GitHub — Code &amp; Projects
+            </a>
+          </li>
 
-    <li>
-      Personal email:
-      <a href="mailto:dwikuljyotidas@gmail.com">
-        dwikuljyotidas@gmail.com
-      </a>
-    </li>
-  </ul>
-</section>
+          <li>
+            Email:
+            <a href="mailto:dwikuljyotidas@gmail.com">
+              dwikuljyotidas@gmail.com
+            </a>
+          </li>
+        </ul>
+      </section>
 
-  <section>
-    <h2>About</h2>
-    <p>
-      My research interests include OFDM, OTFS, FBMC,
-      MIMO systems, channel estimation, and high-mobility
-      wireless communications.
-    </p>
-    <p>
-      This portfolio documents my research and practical
-      work in wireless PHY and baseband development.
-    </p>
-  </section>
+      <section id="about">
+        <h2>About</h2>
+        <p>
+          My research interests include OFDM, OTFS, FBMC,
+          MIMO systems, channel estimation, and high-mobility
+          wireless communications.
+        </p>
+        <p>
+          This portfolio documents my research and practical
+          work in wireless PHY and baseband development.
+        </p>
+      </section>
 
-  <section>
-    <h2>Learning Resources</h2>
-    <p>
-      A study roadmap covering 5G NR, receiver algorithms,
-      C/C++, and practical baseband implementation.
-    </p>
-    <a href="5g-phy-study-guide.pdf">Read the study guide (PDF)</a>
-  </section>
+      <section id="publications">
+        <h2>Publications</h2>
+        <ul class="pubs">
+          <li>
+            <span class="pub-title">Low Complexity Precoding for OTFS-aided Cell-Free mMIMO ISAC System</span>
+            <span class="pub-authors"><strong>D. J. Das</strong>, A. Ranjan, E. Sharma and P. Singh</span>
+            <span class="pub-venue">2025 IEEE Wireless Communications and Networking Conference (WCNC), Milan, Italy, 2025, pp. 1-6</span>
+            <a href="https://doi.org/10.1109/WCNC61545.2025.10978339" target="_blank" rel="noopener noreferrer">doi:10.1109/WCNC61545.2025.10978339</a>
+          </li>
 
-  <section>
-    <h2>Planned Projects</h2>
-    <ul>
-      <li>OFDM receiver with timing and CFO correction</li>
-      <li>5G NR downlink receiver simulation</li>
-      <li>C++ baseband processing kernels</li>
-    </ul>
-    <p>Code and validation results will be added as work progresses.</p>
-  </section>
+          <li>
+            <span class="pub-title">STAR-RIS Assisted Massive MIMO ISAC System with Partial Zero-Forcing Precoding</span>
+            <span class="pub-authors">A. Kumar, M. Chakraborty, <strong>D. J. Das</strong>, A. Ranjan and E. Sharma</span>
+            <span class="pub-venue">2025 IEEE Wireless Communications and Networking Conference (WCNC), Milan, Italy, 2025, pp. 1-6</span>
+            <a href="https://doi.org/10.1109/WCNC61545.2025.10978628" target="_blank" rel="noopener noreferrer">doi:10.1109/WCNC61545.2025.10978628</a>
+          </li>
+
+          <li>
+            <span class="pub-title">OTFS Aided Full-Duplex Cell-Free Massive MIMO</span>
+            <span class="pub-authors"><strong>D. J. Das</strong>, S. T. Kollimarla, E. Sharma and P. Singh</span>
+            <span class="pub-venue">2024 IEEE Wireless Communications and Networking Conference (WCNC), Dubai, United Arab Emirates, 2024, pp. 1-6</span>
+            <a href="https://doi.org/10.1109/WCNC57260.2024.10570668" target="_blank" rel="noopener noreferrer">doi:10.1109/WCNC57260.2024.10570668</a>
+          </li>
+        </ul>
+      </section>
+
+      <!--
+        UNDER REVIEW / SUBMITTED: fill in, then remove this comment wrapper.
+      <section id="under-review">
+        <h2>Under Review</h2>
+        <ul class="pubs">
+          <li>
+            <span class="pub-title">Paper title</span>
+            <span class="pub-authors"><strong>D. J. Das</strong>, Co-author A. and Co-author B.</span>
+            <span class="pub-venue">Submitted to IEEE Journal or Conference name, year</span>
+          </li>
+        </ul>
+      </section>
+      -->
+
+      <section id="learning">
+        <h2>Learning Resources</h2>
+        <p>
+          A study roadmap covering 5G NR, receiver algorithms,
+          C/C++, and practical baseband implementation.
+        </p>
+        <a class="pill" href="5g-phy-study-guide.pdf">Read the study guide (PDF)</a>
+      </section>
+
+      <section id="projects">
+        <h2>Planned Projects</h2>
+        <ul class="plain">
+          <li>OFDM receiver with timing and CFO correction</li>
+          <li>5G NR downlink receiver simulation</li>
+          <li>C++ baseband processing kernels</li>
+        </ul>
+        <p style="margin-top:24px">Code and validation results will be added as work progresses.</p>
+      </section>
+    </main>
+  </div>
 </body>
 </html>
