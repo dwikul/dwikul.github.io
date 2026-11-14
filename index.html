@@ -5,289 +5,330 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
   <title>Dwikul Jyoti Das | Wireless PHY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Slab:wght@100;300;400;700&display=swap" rel="stylesheet">
+  <script>
+    /* Apply saved theme before paint to avoid a flash */
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {}
+  </script>
   <style>
     :root {
       --bg: #ffffff;
-      --surface: #f5f5f7;
-      --text: #1d1d1f;
-      --muted: #6e6e73;
-      --line: rgba(0, 0, 0, 0.1);
-      --accent: #0071e3;
-      --accent-hover: #0077ed;
-      --nav-bg: rgba(255, 255, 255, 0.72);
-      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-              "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --text: #000000;
+      --muted: #828282;
+      --line: #e8e8e8;
+      --accent: #b509ac;
+      --badge-text: #ffffff;
+      --code-bg: #f7f7f7;
+      --body-font: "Roboto", -apple-system, "Helvetica Neue", Arial, sans-serif;
+      --slab: "Roboto Slab", Georgia, "Times New Roman", serif;
     }
     @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #000000;
-        --surface: #1d1d1f;
-        --text: #f5f5f7;
-        --muted: #a1a1a6;
-        --line: rgba(255, 255, 255, 0.14);
-        --accent: #2997ff;
-        --accent-hover: #4aa9ff;
-        --nav-bg: rgba(0, 0, 0, 0.72);
+      :root:not([data-theme="light"]) {
+        --bg: #1c1c1d; --text: #c9d1d9; --muted: #8b949e; --line: #2c2c2e;
+        --accent: #2698ba; --code-bg: #2a2a2c;
       }
+    }
+    :root[data-theme="dark"] {
+      --bg: #1c1c1d; --text: #c9d1d9; --muted: #8b949e; --line: #2c2c2e;
+      --accent: #2698ba; --code-bg: #2a2a2c;
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; scroll-padding-top: 72px; -webkit-text-size-adjust: 100%; }
+    html { scroll-behavior: smooth; scroll-padding-top: 80px; -webkit-text-size-adjust: 100%; }
     body {
       margin: 0;
-      font-family: var(--font);
-      font-size: 17px;
-      line-height: 1.47;
-      letter-spacing: -0.011em;
-      color: var(--text);
-      background: var(--bg);
-      -webkit-font-smoothing: antialiased;
+      font-family: var(--body-font);
+      font-size: 16px; line-height: 1.6;
+      color: var(--text); background: var(--bg);
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; text-underline-offset: 3px; }
-    a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
-    /* Frosted navigation */
-    .nav {
+    .container { max-width: 930px; margin: 0 auto; padding: 0 24px; }
+
+    /* Navbar */
+    .navbar {
       position: sticky; top: 0; z-index: 10;
       padding-top: env(safe-area-inset-top, 0px);
-      background: var(--nav-bg);
-      -webkit-backdrop-filter: saturate(180%) blur(20px);
-      backdrop-filter: saturate(180%) blur(20px);
+      background: var(--bg);
       border-bottom: 1px solid var(--line);
     }
-    .nav-inner {
-      max-width: 980px; margin: 0 auto; height: 48px; padding: 0 22px;
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    .navbar .container {
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 64px; gap: 16px; flex-wrap: wrap;
     }
-    .nav strong { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; }
-    .nav ul { display: flex; gap: 24px; list-style: none; margin: 0; padding: 0; }
-    .nav ul a { font-size: 13px; color: var(--muted); }
-    .nav ul a:hover { color: var(--text); text-decoration: none; }
-    @media (max-width: 640px) { .nav ul { display: none; } }
+    .brand { font-size: 1.4rem; font-weight: 300; color: var(--text); letter-spacing: 0; }
+    .brand b { font-weight: 700; }
+    .brand:hover { text-decoration: none; }
+    .nav { display: flex; align-items: center; gap: 22px; list-style: none; margin: 0; padding: 0; flex-wrap: wrap; }
+    .nav a { color: var(--muted); font-size: 1rem; }
+    .nav a:hover { color: var(--accent); text-decoration: none; }
+    .nav a.active { color: var(--accent); }
+    #theme-toggle {
+      background: none; border: 0; padding: 4px 6px; cursor: pointer;
+      color: var(--muted); font-size: 1.15rem; line-height: 1;
+    }
+    #theme-toggle:hover { color: var(--accent); }
 
-    .wrap { max-width: 980px; margin: 0 auto; padding: 0 22px; }
-
-    /* Hero: the one memorable element */
-    header.hero { text-align: center; padding: 112px 0 96px; }
-    header.hero h1 {
-      margin: 0;
-      font-size: clamp(44px, 9vw, 88px);
-      line-height: 1.04;
-      font-weight: 700;
-      letter-spacing: -0.035em;
+    /* Page header */
+    header.page { padding: 56px 0 8px; }
+    header.page h1 {
+      margin: 0 0 6px;
+      font-family: var(--slab);
+      font-weight: 100;
+      font-size: clamp(2.2rem, 6vw, 3.2rem);
+      line-height: 1.15;
     }
-    header.hero p {
-      margin: 20px auto 0;
-      max-width: 640px;
-      font-size: clamp(19px, 2.6vw, 28px);
-      line-height: 1.25;
-      font-weight: 500;
-      letter-spacing: -0.015em;
-      color: var(--muted);
-    }
+    header.page h1 b { font-weight: 700; }
+    header.page p.sub { margin: 0; color: var(--muted); font-size: 1.1rem; font-weight: 300; }
 
     /* Sections */
-    main { display: grid; gap: 20px; padding-bottom: 96px; }
-    section {
-      background: var(--surface);
-      border-radius: 28px;
-      padding: clamp(28px, 5vw, 56px);
-    }
+    section { padding: 36px 0 8px; }
     h2 {
-      margin: 0 0 16px;
-      font-size: clamp(28px, 4vw, 40px);
-      line-height: 1.1;
-      font-weight: 700;
-      letter-spacing: -0.028em;
+      font-family: var(--slab);
+      font-weight: 400;
+      font-size: 1.6rem;
+      line-height: 1.25;
+      margin: 0 0 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line);
     }
-    section p { margin: 0 0 14px; max-width: 62ch; color: var(--muted); font-size: 19px; line-height: 1.5; }
-    section p:last-child { margin-bottom: 0; }
+    p { margin: 0 0 14px; }
 
-    /* Lists */
-    ul.links, ul.plain { list-style: none; margin: 24px 0 0; padding: 0; }
-    ul.links li, ul.plain li {
-      padding: 16px 0;
-      border-top: 1px solid var(--line);
-      font-size: 19px;
-    }
-    ul.links li:last-child, ul.plain li:last-child { border-bottom: 1px solid var(--line); }
-    ul.links li { color: var(--muted); }
-    ul.links a { font-weight: 500; }
-    ul.plain li { color: var(--text); }
+    /* Link / contact list */
+    ul.items { list-style: none; margin: 18px 0 0; padding: 0; }
+    ul.items li { padding: 6px 0; }
+    ul.bullets { margin: 12px 0 0; padding-left: 22px; }
+    ul.bullets li { margin: 4px 0; }
 
-    /* Publications */
-    ul.pubs { list-style: none; margin: 24px 0 0; padding: 0; }
-    ul.pubs li {
-      display: flex; flex-direction: column; gap: 4px;
-      padding: 20px 0;
-      border-top: 1px solid var(--line);
-      font-size: 17px; line-height: 1.4;
+    /* Publications, al-folio bibliography layout */
+    h3.year {
+      font-family: var(--slab);
+      font-weight: 400; font-size: 1.25rem;
+      margin: 28px 0 14px; color: var(--text);
     }
-    ul.pubs li:last-child { border-bottom: 1px solid var(--line); }
-    .pub-title { font-size: 19px; font-weight: 600; letter-spacing: -0.015em; color: var(--text); }
-    .pub-authors, .pub-venue { color: var(--muted); }
-    .pub-authors strong { color: var(--text); font-weight: 700; }
-    ul.pubs a { font-size: 15px; word-break: break-all; }
+    ol.bib { list-style: none; margin: 0; padding: 0; }
+    ol.bib li {
+      display: grid; grid-template-columns: 90px 1fr; gap: 16px;
+      margin-bottom: 22px;
+    }
+    .abbr {
+      justify-self: start; align-self: start;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+      background: var(--accent); color: var(--badge-text);
+      padding: 3px 8px; border-radius: 3px; margin-top: 2px;
+    }
+    .bib-title { font-weight: 700; display: block; }
+    .bib-authors { display: block; color: var(--muted); font-size: 0.95rem; }
+    .bib-authors em { font-style: normal; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--muted); }
+    .bib-venue { display: block; color: var(--muted); font-size: 0.95rem; font-style: italic; }
+    .btn {
+      display: inline-block; margin-top: 8px; margin-right: 6px;
+      padding: 2px 8px;
+      font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em;
+      color: var(--text);
+      border: 1px solid var(--text); border-radius: 3px;
+      transition: color .15s ease, border-color .15s ease, background-color .15s ease;
+    }
+    .btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; text-decoration: none; }
 
-    /* Pill link */
-    .pill {
-      display: inline-block; margin-top: 8px;
-      padding: 12px 24px; border-radius: 980px;
-      background: var(--accent); color: #fff;
-      font-size: 17px; font-weight: 500;
-      transition: background-color .2s ease;
-    }
-    .pill:hover { background: var(--accent-hover); text-decoration: none; }
-
-    /* One page-load moment, respects reduced motion */
-    @media (prefers-reduced-motion: no-preference) {
-      header.hero h1, header.hero p { animation: rise .9s cubic-bezier(.2,.7,.2,1) both; }
-      header.hero p { animation-delay: .12s; }
-      @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-    }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    footer { margin-top: 56px; padding: 22px 0 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; }
 
     @media (max-width: 640px) {
-      header.hero { padding: 72px 0 56px; }
-      section { border-radius: 22px; }
-      body, section p, ul.links li, ul.plain li { font-size: 17px; }
+      ol.bib li { grid-template-columns: 1fr; gap: 6px; }
+      header.page { padding-top: 36px; }
     }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   </style>
 </head>
 <body>
-  <nav class="nav" aria-label="Primary">
-    <div class="nav-inner">
-      <strong>Dwikul Jyoti Das</strong>
-      <ul>
-        <li><a href="#contact">Profiles &amp; Contact</a></li>
-        <li><a href="#about">About</a></li>
+  <nav class="navbar" aria-label="Primary">
+    <div class="container">
+      <a class="brand" href="#top"><b>Dwikul</b> Jyoti Das</a>
+      <ul class="nav">
+        <li><a href="#about" class="active">About</a></li>
         <li><a href="#publications">Publications</a></li>
         <li><a href="#learning">Learning Resources</a></li>
         <li><a href="#projects">Planned Projects</a></li>
+        <li><a href="#contact">Profiles &amp; Contact</a></li>
+        <li><button id="theme-toggle" type="button" aria-label="Toggle light and dark theme" title="Toggle theme">☾</button></li>
       </ul>
     </div>
   </nav>
 
-  <div class="wrap">
-    <header class="hero">
-      <h1>Dwikul Jyoti Das</h1>
-      <p>Wireless Communications · Signal Processing · PHY Algorithms</p>
+  <main class="container" id="top">
+    <header class="page">
+      <h1><b>Dwikul</b> Jyoti Das</h1>
+      <p class="sub">Wireless Communications · Signal Processing · PHY Algorithms</p>
     </header>
 
-    <main>
-      <section id="contact">
-        <h2>Profiles &amp; Contact</h2>
+    <section id="about">
+      <h2>About</h2>
+      <p>
+        My research interests include OFDM, OTFS, FBMC,
+        MIMO systems, channel estimation, and high-mobility
+        wireless communications.
+      </p>
+      <p>
+        This portfolio documents my research and practical
+        work in wireless PHY and baseband development.
+      </p>
+    </section>
 
-        <p>
-          Explore my research publications and professional profiles,
-          or contact me about wireless research and engineering opportunities.
-        </p>
+    <section id="publications">
+      <h2>Publications</h2>
 
-        <ul class="links">
-          <li>
-            <a href="https://scholar.google.com/citations?user=7xX5UcQAAAAJ&amp;hl=en"
-               target="_blank" rel="noopener noreferrer">
-              Google Scholar — Research Publications
-            </a>
-          </li>
+      <h3 class="year">2025</h3>
+      <ol class="bib">
+        <li>
+          <div><span class="abbr">WCNC</span></div>
+          <div>
+            <span class="bib-title">Low Complexity Precoding for OTFS-aided Cell-Free mMIMO ISAC System</span>
+            <span class="bib-authors"><em>D. J. Das</em>, A. Ranjan, E. Sharma and P. Singh</span>
+            <span class="bib-venue">2025 IEEE Wireless Communications and Networking Conference (WCNC), Milan, Italy, 2025, pp. 1-6</span>
+            <a class="btn" href="https://doi.org/10.1109/WCNC61545.2025.10978339" target="_blank" rel="noopener noreferrer">DOI</a>
+          </div>
+        </li>
+        <li>
+          <div><span class="abbr">WCNC</span></div>
+          <div>
+            <span class="bib-title">STAR-RIS Assisted Massive MIMO ISAC System with Partial Zero-Forcing Precoding</span>
+            <span class="bib-authors">A. Kumar, M. Chakraborty, <em>D. J. Das</em>, A. Ranjan and E. Sharma</span>
+            <span class="bib-venue">2025 IEEE Wireless Communications and Networking Conference (WCNC), Milan, Italy, 2025, pp. 1-6</span>
+            <a class="btn" href="https://doi.org/10.1109/WCNC61545.2025.10978628" target="_blank" rel="noopener noreferrer">DOI</a>
+          </div>
+        </li>
+      </ol>
 
-          <li>
-            <a href="https://www.linkedin.com/in/dwikul/"
-               target="_blank" rel="noopener noreferrer">
-              LinkedIn — Professional Profile
-            </a>
-          </li>
-
-          <li>
-            <a href="https://github.com/dwikul"
-               target="_blank" rel="noopener noreferrer">
-              GitHub — Code &amp; Projects
-            </a>
-          </li>
-
-          <li>
-            Email:
-            <a href="mailto:dwikuljyotidas@gmail.com">
-              dwikuljyotidas@gmail.com
-            </a>
-          </li>
-        </ul>
-      </section>
-
-      <section id="about">
-        <h2>About</h2>
-        <p>
-          My research interests include OFDM, OTFS, FBMC,
-          MIMO systems, channel estimation, and high-mobility
-          wireless communications.
-        </p>
-        <p>
-          This portfolio documents my research and practical
-          work in wireless PHY and baseband development.
-        </p>
-      </section>
-
-      <section id="publications">
-        <h2>Publications</h2>
-        <ul class="pubs">
-          <li>
-            <span class="pub-title">Low Complexity Precoding for OTFS-aided Cell-Free mMIMO ISAC System</span>
-            <span class="pub-authors"><strong>D. J. Das</strong>, A. Ranjan, E. Sharma and P. Singh</span>
-            <span class="pub-venue">2025 IEEE Wireless Communications and Networking Conference (WCNC), Milan, Italy, 2025, pp. 1-6</span>
-            <a href="https://doi.org/10.1109/WCNC61545.2025.10978339" target="_blank" rel="noopener noreferrer">doi:10.1109/WCNC61545.2025.10978339</a>
-          </li>
-
-          <li>
-            <span class="pub-title">STAR-RIS Assisted Massive MIMO ISAC System with Partial Zero-Forcing Precoding</span>
-            <span class="pub-authors">A. Kumar, M. Chakraborty, <strong>D. J. Das</strong>, A. Ranjan and E. Sharma</span>
-            <span class="pub-venue">2025 IEEE Wireless Communications and Networking Conference (WCNC), Milan, Italy, 2025, pp. 1-6</span>
-            <a href="https://doi.org/10.1109/WCNC61545.2025.10978628" target="_blank" rel="noopener noreferrer">doi:10.1109/WCNC61545.2025.10978628</a>
-          </li>
-
-          <li>
-            <span class="pub-title">OTFS Aided Full-Duplex Cell-Free Massive MIMO</span>
-            <span class="pub-authors"><strong>D. J. Das</strong>, S. T. Kollimarla, E. Sharma and P. Singh</span>
-            <span class="pub-venue">2024 IEEE Wireless Communications and Networking Conference (WCNC), Dubai, United Arab Emirates, 2024, pp. 1-6</span>
-            <a href="https://doi.org/10.1109/WCNC57260.2024.10570668" target="_blank" rel="noopener noreferrer">doi:10.1109/WCNC57260.2024.10570668</a>
-          </li>
-        </ul>
-      </section>
+      <h3 class="year">2024</h3>
+      <ol class="bib">
+        <li>
+          <div><span class="abbr">WCNC</span></div>
+          <div>
+            <span class="bib-title">OTFS Aided Full-Duplex Cell-Free Massive MIMO</span>
+            <span class="bib-authors"><em>D. J. Das</em>, S. T. Kollimarla, E. Sharma and P. Singh</span>
+            <span class="bib-venue">2024 IEEE Wireless Communications and Networking Conference (WCNC), Dubai, United Arab Emirates, 2024, pp. 1-6</span>
+            <a class="btn" href="https://doi.org/10.1109/WCNC57260.2024.10570668" target="_blank" rel="noopener noreferrer">DOI</a>
+          </div>
+        </li>
+      </ol>
 
       <!--
         UNDER REVIEW / SUBMITTED: fill in, then remove this comment wrapper.
-      <section id="under-review">
-        <h2>Under Review</h2>
-        <ul class="pubs">
-          <li>
-            <span class="pub-title">Paper title</span>
-            <span class="pub-authors"><strong>D. J. Das</strong>, Co-author A. and Co-author B.</span>
-            <span class="pub-venue">Submitted to IEEE Journal or Conference name, year</span>
-          </li>
-        </ul>
-      </section>
+      <h3 class="year">Under Review</h3>
+      <ol class="bib">
+        <li>
+          <div><span class="abbr">Venue</span></div>
+          <div>
+            <span class="bib-title">Paper title</span>
+            <span class="bib-authors"><em>D. J. Das</em>, Co-author A. and Co-author B.</span>
+            <span class="bib-venue">Submitted to IEEE Journal or Conference name, year</span>
+          </div>
+        </li>
+      </ol>
       -->
+    </section>
 
-      <section id="learning">
-        <h2>Learning Resources</h2>
-        <p>
-          A study roadmap covering 5G NR, receiver algorithms,
-          C/C++, and practical baseband implementation.
-        </p>
-        <a class="pill" href="5g-phy-study-guide.pdf">Read the study guide (PDF)</a>
-      </section>
+    <section id="learning">
+      <h2>Learning Resources</h2>
+      <p>
+        A study roadmap covering 5G NR, receiver algorithms,
+        C/C++, and practical baseband implementation.
+      </p>
+      <a class="btn" href="5g-phy-study-guide.pdf" style="margin-top:0">Read the study guide (PDF)</a>
+    </section>
 
-      <section id="projects">
-        <h2>Planned Projects</h2>
-        <ul class="plain">
-          <li>OFDM receiver with timing and CFO correction</li>
-          <li>5G NR downlink receiver simulation</li>
-          <li>C++ baseband processing kernels</li>
-        </ul>
-        <p style="margin-top:24px">Code and validation results will be added as work progresses.</p>
-      </section>
-    </main>
-  </div>
+    <section id="projects">
+      <h2>Planned Projects</h2>
+      <ul class="bullets">
+        <li>OFDM receiver with timing and CFO correction</li>
+        <li>5G NR downlink receiver simulation</li>
+        <li>C++ baseband processing kernels</li>
+      </ul>
+      <p style="margin-top:14px">Code and validation results will be added as work progresses.</p>
+    </section>
+
+    <section id="contact">
+      <h2>Profiles &amp; Contact</h2>
+      <p>
+        Explore my research publications and professional profiles,
+        or contact me about wireless research and engineering opportunities.
+      </p>
+      <ul class="items">
+        <li>
+          <a href="https://scholar.google.com/citations?user=7xX5UcQAAAAJ&amp;hl=en"
+             target="_blank" rel="noopener noreferrer">
+            Google Scholar — Research Publications
+          </a>
+        </li>
+        <li>
+          <a href="https://www.linkedin.com/in/dwikul/"
+             target="_blank" rel="noopener noreferrer">
+            LinkedIn — Professional Profile
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/dwikul"
+             target="_blank" rel="noopener noreferrer">
+            GitHub — Code &amp; Projects
+          </a>
+        </li>
+        <li>
+          Email:
+          <a href="mailto:dwikuljyotidas@gmail.com">
+            dwikuljyotidas@gmail.com
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <footer>© Dwikul Jyoti Das</footer>
+  </main>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var btn = document.getElementById("theme-toggle");
+      function isDark() {
+        var t = root.getAttribute("data-theme");
+        if (t) return t === "dark";
+        return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      }
+      function paint() { btn.textContent = isDark() ? "☀" : "☾"; }
+      btn.addEventListener("click", function () {
+        var next = isDark() ? "light" : "dark";
+        root.setAttribute("data-theme", next);
+        try { localStorage.setItem("theme", next); } catch (e) {}
+        paint();
+      });
+      paint();
+
+      /* Highlight the nav link of the section in view */
+      var links = document.querySelectorAll(".nav a[href^='#']");
+      var map = {};
+      links.forEach(function (a) { map[a.getAttribute("href").slice(1)] = a; });
+      if ("IntersectionObserver" in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting && map[e.target.id]) {
+              links.forEach(function (a) { a.classList.remove("active"); });
+              map[e.target.id].classList.add("active");
+            }
+          });
+        }, { rootMargin: "-30% 0px -60% 0px" });
+        Object.keys(map).forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) io.observe(el);
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
